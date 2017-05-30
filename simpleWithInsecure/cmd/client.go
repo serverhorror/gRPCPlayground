@@ -1,9 +1,13 @@
 package cmd
 
 import (
-	"fmt"
+	"log"
 
+	"github.com/pkg/errors"
+	"github.com/serverhorror/gRPCPlayground/pb"
 	"github.com/spf13/cobra"
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
 )
 
 // clientCmd represents the client command
@@ -16,8 +20,26 @@ and usage of using your command. For example:
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("client called")
+	RunE: func(cmd *cobra.Command, args []string) (err error) {
+		var opts []grpc.DialOption
+
+		opts = append(opts, grpc.WithInsecure())
+		conn, err := grpc.Dial("[::1]:2000", opts...)
+		if err != nil {
+			return errors.Wrap(err, "could not dial")
+		}
+
+		client := pb.NewReplyServiceClient(conn)
+		ctx := context.Background()
+		req := pb.MsgRequest{
+			Value: "I am the request!",
+		}
+		resp, err := client.Reply(ctx, &req)
+		if err != nil {
+			return errors.Wrap(err, "problem receiving response")
+		}
+		log.Printf("%T: %q", resp, resp)
+		return err
 	},
 }
 

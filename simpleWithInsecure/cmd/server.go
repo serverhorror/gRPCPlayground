@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"fmt"
 	"net"
-	"os"
-	"strconv"
 
 	"github.com/pkg/errors"
+	"github.com/serverhorror/gRPCPlayground/pb"
+	"github.com/serverhorror/gRPCPlayground/simpleWithInsecure/server"
 	"github.com/spf13/cobra"
+	"google.golang.org/grpc"
 )
 
 // serverCmd represents the server command
@@ -21,27 +21,16 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
+		s := server.EchoServer{}
 
-		var lAddr net.IP
-		var lPort int64
-		var l net.Listener
-
-		if lAddr = net.ParseIP(os.Getenv("IP")); lAddr == nil {
-			return fmt.Errorf("could not parse IP: %v", lAddr)
-			// return errors.Wrap(err, "could not get IP")
-		}
-		if lPort, err = strconv.ParseInt(os.Getenv("PORT"), 10, 64); err != nil {
-			return errors.Wrap(err, "could not get PORT")
+		l, err := net.Listen("tcp", "[::1]:2000")
+		if err != nil {
+			return errors.Wrap(err, "could not start listener")
 		}
 
-		if l, err = net.Listen("tcp", fmt.Sprintf("[%s]:%v", lAddr, lPort)); err != nil {
-			return errors.Wrap(err, "could not listen")
-		}
-
-		con, err := l.Accept()
-		_, err = con.Write([]byte("bye!\n"))
-		err = con.Close()
-
+		grpcServer := grpc.NewServer()
+		pb.RegisterReplyServiceServer(grpcServer, &s)
+		grpcServer.Serve(l)
 		return err
 	},
 }
