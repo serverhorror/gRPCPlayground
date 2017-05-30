@@ -10,11 +10,14 @@ echo 'export PATH="/usr/local/opt/protobuf@3.1/bin:$PATH"' >> ~/.bash_profile
 
 ### gRPC Stubs
 
-```
-protoc -I /usr/local/include/ \
-  -I . \
-  -I $(go env GOPATH)/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
-  --go_out=plugins=grpc:. pb/service.proto
+```bash
+protoc \
+  -I/usr/local/include \
+  -I. \
+  -I$(go env GOPATH)/src \
+  -I$(go env GOPATH)/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
+  --go_out=plugins=grpc:. \
+  pb/service.proto
 ```
 
 Code is in
@@ -24,8 +27,9 @@ Code is in
 
 ### JSON REST API Gateway
 
-```
-protoc -I/usr/local/include \
+```bash
+protoc \
+  -I/usr/local/include \
   -I. \
   -I$(go env GOPATH)/src \
   -I$(go env GOPATH)/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
@@ -39,8 +43,10 @@ Code is in
 
 ### Swagger Docs
 
-```
-protoc -I/usr/local/include -I. \
+```bash
+protoc \
+  -I/usr/local/include \
+  -I. \
   -I$(go env GOPATH)/src \
   -I$(go env GOPATH)/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
   --swagger_out=logtostderr=true:. \
