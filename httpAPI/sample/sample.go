@@ -2,6 +2,7 @@ package sample
 
 import (
 	"errors"
+	"time"
 
 	"github.com/serverhorror/gRPCPlayground/httpAPI/label"
 	"github.com/serverhorror/gRPCPlayground/httpAPI/tag"
@@ -11,32 +12,39 @@ var (
 	notImplemented = errors.New("not implemented")
 )
 
-type Option func(*[]Sample) error
-
-func WithTags(t *tag.Tags) Option {
-	return func(s *[]Sample) error {
-		return notImplemented
-	}
-}
-
 type Sample struct {
-	ID     int64
-	Labels *label.Labels
-	Tags   *tag.Tags
+	ID       uint64    `xml:"id" json:"id" db:"id"`
+	Prefix   string    `xml:"prefix" json:"prefix" db:"prefix"`
+	Provider string    `xml:"provider" json:"provider" db:"provider"`
+	Site     string    `xml:"site" json:"site" db:"site"`
+	Creator  string    `xml:"creator" json:"creator" db:"creator"`
+	Created  time.Time `xml:"created" json:"created" db:"created"`
+
+	tag.Tags
+	label.Labels
+
+	isDirty bool
 }
 
-type Samples []Sample
-
-func New(labels *label.Labels, tags *tag.Tags) *Sample {
-	s := &Sample{
-		Labels: labels,
-		Tags:   tags,
+func New(prefix, site string, labels label.Labels, tags tag.Tags) *Sample {
+	return &Sample{
+		Prefix:  prefix,
+		Site:    site,
+		Labels:  labels,
+		Tags:    tags,
+		Created: time.Now(),
+		isDirty: true,
 	}
-	return s
 }
 
-func LoadByID(id int64) (Sample, error) {
+func LoadByID(id uint64) (*Sample, error) {
+
+	// var s *Sample
 	return nil, notImplemented
+}
+
+func (s *Sample) Files() files {
+	return nil
 }
 
 // func (s *Sample) ServeHTTP(w http.ResponseWriter, r *http.Request) {
