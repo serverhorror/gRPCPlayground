@@ -1,0 +1,218 @@
+swagger: '2.0'
+info:
+  title: DataInventory
+  description: A rather nice inventory of data
+  contact:
+    name: Martin Marcher
+    url: http://martinmarcher.com
+    email: martin@marcher.name
+  version: '1.0'
+schemes:
+  - http
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+basePath: /api
+securityDefinitions:
+  basicAuth:
+    type: basic
+  apiKey:
+    type: apiKey
+    name: api-key
+    in: header
+  oAuth2:
+    type: oauth2
+    authorizationUrl: 'http://petstore.swagger.io/oauth/dialog'
+    flow: implicit
+    scopes:
+      'read:sample': read one or more samples
+security:
+  - basicAuth: []
+  - apiKey: []
+  - oAuth2:
+      - 'read:sample'
+paths:
+  /v1/sample:
+    get:
+      tags:
+        - sample
+      summary: Get a sample by id
+      description: >
+        Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
+        Aenean commodo ligula eget dolor. Aenean massa. Cum sociis
+        natoque penatibus et magnis dis parturient montes, nascetur
+        ridiculus mus. Donec quam felis, ultricies nec, pellentesque
+        eu, pretium quis, sem.
+
+
+        `Nulla consequat massa` quis enim.
+        Donec pede justo, fringilla vel, aliquet nec, *vulputate* eget,
+        arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae,
+        justo. Nullam dictum felis eu pede mollis pretium. Integer
+        tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean
+        vulputate eleifend tellus. Aenean leo ligula, porttitor eu,
+        consequat vitae, eleifend ac, enim.
+      parameters:
+        - name: id
+          in: query
+          type: string
+          required: true
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Sample'
+        '404':
+          description: Not found
+          schema:
+            $ref: '#/definitions/Error'
+  /v1/samples:
+    get:
+      tags:
+        - sample
+      summary: Get samples by filter
+      description: >
+        Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
+        Aenean commodo ligula eget dolor. Aenean massa. Cum sociis
+        natoque penatibus et magnis dis parturient montes, nascetur
+        ridiculus mus. Donec quam felis, ultricies nec, pellentesque
+        eu, pretium quis, sem.
+
+
+        `Nulla consequat massa` quis enim.
+        Donec pede justo, fringilla vel, aliquet nec, *vulputate* eget,
+        arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae,
+        justo. Nullam dictum felis eu pede mollis pretium. Integer
+        tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean
+        vulputate eleifend tellus. Aenean leo ligula, porttitor eu,
+        consequat vitae, eleifend ac, enim.
+      produces:
+        - application/json
+        - text/csv
+      parameters:
+        - name: tag
+          required: false
+          in: query
+          type: array
+          items:
+            type: string
+          collectionFormat: multi
+        - name: labels
+          required: false
+          in: query
+          type: array
+          items:
+            type: integer
+            format: uint64
+          collectionFormat: multi
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Sample'
+        '404':
+          description: Not found
+          schema:
+            $ref: '#/definitions/Error'
+definitions:
+  Sample:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: uint64
+      prefix:
+        type: string
+      provider:
+        type: string
+      site:
+        type: string
+      creator:
+        type: string
+      created:
+        type: string
+        format: date-time
+      files:
+        type: array
+        items:
+          $ref: '#/definitions/File'
+      tags:
+        type: array
+        items:
+          $ref: '#/definitions/Tag'
+      labels:
+        type: array
+        items:
+          $ref: '#/definitions/Label'
+    required:
+      - id
+      - prefix
+      - site
+      - creator
+      - created
+  File:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: uint64
+      sample-id:
+        type: array
+        format: uint64
+        items:
+          type: integer
+      source-uri:
+        type: string
+      cloud-uri:
+        type: string
+      creator:
+        type: string
+      created:
+        type: string
+      provider:
+        type: string
+      site:
+        type: string
+    required:
+      - id
+      - sample-id
+      - source-uri
+      - cloud-uri
+      - created
+  Tag:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: uint64
+      tag:
+        type: string
+    required:
+      - id
+      - tag
+  Label:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: uint64
+      key:
+        type: string
+      value:
+        type: string
+    required:
+      - id
+      - key
+      - value
+  Error:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      type:
+        type: string
+      message:
+        type: string
